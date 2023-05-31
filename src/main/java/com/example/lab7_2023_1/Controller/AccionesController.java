@@ -42,7 +42,7 @@ public class AccionesController {
         HashMap<String,String> responseMap = new HashMap<>();
         if(request.getMethod().equals("POST")|| request.getMethod().equals("PUT")){
             responseMap.put("estado","error");
-            responseMap.put("msg","Debe enviar un pago");
+            responseMap.put("msg","Debe enviar una accion");
         }
         return ResponseEntity.badRequest().body(responseMap);
     }
