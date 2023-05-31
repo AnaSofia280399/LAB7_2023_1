@@ -6,6 +6,7 @@ import com.example.lab7_2023_1.Repository.SolicitudesRepository;
 import com.example.lab7_2023_1.Repository.SolicitudesRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.*;
@@ -15,7 +16,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 @RestController //me añade el @ResponseBody
-@CrossOrigin // para evitar bloqueos
+
 @RequestMapping("solicitudes")
 public class SolicitudesController {
 
@@ -55,7 +56,7 @@ public class SolicitudesController {
         return ResponseEntity.badRequest().body(responseMap);
     }
 
-    @PutMapping(value = "/aprobarSolicitud")
+    @PutMapping(value = "/aprobarSolicitud" )
     public ResponseEntity<HashMap<String,Object>> actualizarSolicitud(@RequestBody Solicitudes solicitudes) {
 
         HashMap<String, Object> responseMap = new HashMap<>();
@@ -105,7 +106,7 @@ public class SolicitudesController {
                     solicitudes.setSolicitud_monto(opt.get().getSolicitud_monto());
                     solicitudes.setSolicitud_producto(opt.get().getSolicitud_producto());
                     solicitudes.setUsuarios_id(opt.get().getUsuarios_id());
-                    solicitudes.setSolicitud_estado("denegado");
+                    solicitudes.setSolicitud_estado("denegada");
                     solicitudesRepository.save(solicitudes);
                     int id = solicitudes.getId();
                     responseMap.put("id solicitud", id);
@@ -128,6 +129,41 @@ public class SolicitudesController {
             return ResponseEntity.badRequest().body(responseMap);
         }
     }
+
+    @DeleteMapping(value = "/borrarSolicitud/{id}")
+    public ResponseEntity<HashMap<String, Object>> borrarSolicitud(@PathVariable("id") String idStr) {
+
+        HashMap<String, Object> responseMap = new HashMap<>();
+
+        try {
+            int id = Integer.parseInt(idStr);
+
+            if (solicitudesRepository.existsById(id)) {
+                Optional<Solicitudes> opt = solicitudesRepository.findById(id);
+
+                if ("denegada".equals(opt.get().getSolicitud_estado())){
+
+                    solicitudesRepository.deleteById(id);
+                    responseMap.put("id solicitada borrada", id);
+                    return ResponseEntity.ok(responseMap);
+                } else{
+
+                responseMap.put("Solicitud ", "Debe ser una solicitud denegada");
+                return ResponseEntity.badRequest().body(responseMap);
+                }
+
+            } else {
+                responseMap.put("estado", "error");
+                responseMap.put("msg", "no se encontró la solicitud con id: " + id);
+                return ResponseEntity.badRequest().body(responseMap);
+            }
+        } catch (NumberFormatException ex) {
+            responseMap.put("estado", "error");
+            responseMap.put("msg", "El ID debe ser un número");
+            return ResponseEntity.badRequest().body(responseMap);
+        }
+    }
+
 
 
 }
