@@ -38,12 +38,12 @@ public class Usuarios {
     private String estado_logico;
 
     @ManyToOne
-    @Column(name = "rol_ID", nullable = false)
+    @JoinColumn(name = "rol_ID", nullable = false)
     private Rol rol_id;
 
-
+    //@Column(name = "fecha")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime fecha;
+    private LocalDateTime fecha_registro;
 
 
 
