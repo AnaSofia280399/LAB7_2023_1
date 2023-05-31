@@ -92,5 +92,42 @@ public class SolicitudesController {
         }
     }
 
+    @PutMapping(value = "/denegarSolicitud")
+    public ResponseEntity<HashMap<String,Object>> denegarSolicitud(@RequestBody Solicitudes solicitudes) {
+
+        HashMap<String, Object> responseMap = new HashMap<>();
+
+        if (solicitudes.getId() != null && solicitudes.getId() > 0) {
+            Optional<Solicitudes> opt = solicitudesRepository.findById(solicitudes.getId());
+            if (opt.isPresent()) {
+                if ("pendiente".equals(opt.get().getSolicitud_estado())) {
+                    solicitudes.setSolicitud_fecha(opt.get().getSolicitud_fecha());
+                    solicitudes.setSolicitud_monto(opt.get().getSolicitud_monto());
+                    solicitudes.setSolicitud_producto(opt.get().getSolicitud_producto());
+                    solicitudes.setUsuarios_id(opt.get().getUsuarios_id());
+                    solicitudes.setSolicitud_estado("denegado");
+                    solicitudesRepository.save(solicitudes);
+                    int id = solicitudes.getId();
+                    responseMap.put("id solicitud", id);
+                    return ResponseEntity.ok(responseMap);
+                } else{
+
+                    int id = solicitudes.getId();
+                    responseMap.put("Solicitud ya atendida", id);
+                    return ResponseEntity.badRequest().body(responseMap);
+                }
+
+            } else {
+                responseMap.put("estado", "error");
+                responseMap.put("msg", "La solicitud a actualizar no existe");
+                return ResponseEntity.badRequest().body(responseMap);
+            }
+        } else {
+            responseMap.put("estado", "error");
+            responseMap.put("msg", "Debe enviar un ID");
+            return ResponseEntity.badRequest().body(responseMap);
+        }
+    }
+
 
 }
