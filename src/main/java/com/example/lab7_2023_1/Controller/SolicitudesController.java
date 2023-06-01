@@ -146,6 +146,7 @@ public class SolicitudesController {
     public ResponseEntity<HashMap<String, Object>> borrarSolicitud(@RequestParam(value = "idSolicitud", required = false) String idParam) {
         HashMap<String, Object> responseMap = new HashMap<>();
 
+
         if (idParam == null || idParam.isEmpty()) {
             responseMap.put("estado", "error");
             responseMap.put("msg", "Debe enviar el parámetro 'idSolicitud'");
