@@ -56,110 +56,131 @@ public class SolicitudesController {
         return ResponseEntity.badRequest().body(responseMap);
     }
 
-    @PutMapping(value = "/aprobarSolicitud" )
-    public ResponseEntity<HashMap<String,Object>> actualizarSolicitud(@RequestBody Solicitudes solicitudes) {
-
+    @PutMapping(value = "/aprobarSolicitud")
+    public ResponseEntity<HashMap<String, Object>> actualizarSolicitud(@RequestParam(value = "idSolicitud", required = false) String idParam) {
         HashMap<String, Object> responseMap = new HashMap<>();
 
-        if (solicitudes.getId() != null && solicitudes.getId() > 0) {
-            Optional<Solicitudes> opt = solicitudesRepository.findById(solicitudes.getId());
-            if (opt.isPresent()) {
-                if ("pendiente".equals(opt.get().getSolicitud_estado())) {
-                    solicitudes.setSolicitud_fecha(opt.get().getSolicitud_fecha());
-                    solicitudes.setSolicitud_monto(opt.get().getSolicitud_monto());
-                    solicitudes.setSolicitud_producto(opt.get().getSolicitud_producto());
-                    solicitudes.setUsuarios_id(opt.get().getUsuarios_id());
-                    solicitudes.setSolicitud_estado("aprobado");
-                    solicitudesRepository.save(solicitudes);
-                    int id = solicitudes.getId();
-                    responseMap.put("id solicitud", id);
-                    return ResponseEntity.ok(responseMap);
-                } else{
+        if (idParam == null || idParam.isEmpty()) {
+            responseMap.put("estado", "error");
+            responseMap.put("msg", "Debe enviar el parámetro 'idSolicitud'");
+            return ResponseEntity.badRequest().body(responseMap);
+        }
 
-                    int id = solicitudes.getId();
-                    responseMap.put("Solicitud ya atendida", id);
+        try {
+            int id = Integer.parseInt(idParam);
+
+            if (id > 0) {
+                Optional<Solicitudes> opt = solicitudesRepository.findById(id);
+                if (opt.isPresent()) {
+                    Solicitudes solicitudes = opt.get();
+                    if ("pendiente".equals(solicitudes.getSolicitud_estado())) {
+                        solicitudes.setSolicitud_estado("aprobado");
+                        solicitudesRepository.save(solicitudes);
+                        responseMap.put("id solicitud", id);
+                        return ResponseEntity.ok(responseMap);
+                    } else {
+                        responseMap.put("Solicitud ya atendida", id);
+                        return ResponseEntity.badRequest().body(responseMap);
+                    }
+                } else {
+                    responseMap.put("estado", "error");
+                    responseMap.put("msg", "La solicitud a actualizar no existe");
                     return ResponseEntity.badRequest().body(responseMap);
                 }
-
             } else {
                 responseMap.put("estado", "error");
-                responseMap.put("msg", "La solicitud a actualizar no existe");
+                responseMap.put("msg", "Debe enviar un ID válido");
                 return ResponseEntity.badRequest().body(responseMap);
             }
-        } else {
+        } catch (NumberFormatException e) {
             responseMap.put("estado", "error");
-            responseMap.put("msg", "Debe enviar un ID");
+            responseMap.put("msg", "El ID de solicitud debe ser un número válido");
             return ResponseEntity.badRequest().body(responseMap);
         }
     }
 
     @PutMapping(value = "/denegarSolicitud")
-    public ResponseEntity<HashMap<String,Object>> denegarSolicitud(@RequestBody Solicitudes solicitudes) {
-
+    public ResponseEntity<HashMap<String, Object>> denegarSolicitud(@RequestParam(value = "idSolicitud", required = false) String idParam) {
         HashMap<String, Object> responseMap = new HashMap<>();
 
-        if (solicitudes.getId() != null && solicitudes.getId() > 0) {
-            Optional<Solicitudes> opt = solicitudesRepository.findById(solicitudes.getId());
-            if (opt.isPresent()) {
-                if ("pendiente".equals(opt.get().getSolicitud_estado())) {
-                    solicitudes.setSolicitud_fecha(opt.get().getSolicitud_fecha());
-                    solicitudes.setSolicitud_monto(opt.get().getSolicitud_monto());
-                    solicitudes.setSolicitud_producto(opt.get().getSolicitud_producto());
-                    solicitudes.setUsuarios_id(opt.get().getUsuarios_id());
-                    solicitudes.setSolicitud_estado("denegada");
-                    solicitudesRepository.save(solicitudes);
-                    int id = solicitudes.getId();
-                    responseMap.put("id solicitud", id);
-                    return ResponseEntity.ok(responseMap);
-                } else{
+        if (idParam == null || idParam.isEmpty()) {
+            responseMap.put("estado", "error");
+            responseMap.put("msg", "Debe enviar el parámetro 'idSolicitud'");
+            return ResponseEntity.badRequest().body(responseMap);
+        }
 
-                    int id = solicitudes.getId();
-                    responseMap.put("Solicitud ya atendida", id);
+        try {
+            int id = Integer.parseInt(idParam);
+
+            if (id > 0) {
+                Optional<Solicitudes> opt = solicitudesRepository.findById(id);
+                if (opt.isPresent()) {
+                    Solicitudes solicitudes = opt.get();
+                    if ("pendiente".equals(solicitudes.getSolicitud_estado())) {
+                        solicitudes.setSolicitud_estado("denegada");
+                        solicitudesRepository.save(solicitudes);
+                        responseMap.put("id solicitud", id);
+                        return ResponseEntity.ok(responseMap);
+                    } else {
+                        responseMap.put("Solicitud ya atendida", id);
+                        return ResponseEntity.badRequest().body(responseMap);
+                    }
+                } else {
+                    responseMap.put("estado", "error");
+                    responseMap.put("msg", "La solicitud a actualizar no existe");
                     return ResponseEntity.badRequest().body(responseMap);
                 }
-
             } else {
                 responseMap.put("estado", "error");
-                responseMap.put("msg", "La solicitud a actualizar no existe");
+                responseMap.put("msg", "Debe enviar un ID válido");
                 return ResponseEntity.badRequest().body(responseMap);
             }
-        } else {
+        } catch (NumberFormatException e) {
             responseMap.put("estado", "error");
-            responseMap.put("msg", "Debe enviar un ID");
+            responseMap.put("msg", "El ID de solicitud debe ser un número válido");
             return ResponseEntity.badRequest().body(responseMap);
         }
     }
 
-    @DeleteMapping(value = "/borrarSolicitud/{id}")
-    public ResponseEntity<HashMap<String, Object>> borrarSolicitud(@PathVariable("id") String idStr) {
-
+    @DeleteMapping(value = "/borrarSolicitud")
+    public ResponseEntity<HashMap<String, Object>> borrarSolicitud(@RequestParam(value = "idSolicitud", required = false) String idParam) {
         HashMap<String, Object> responseMap = new HashMap<>();
 
+        if (idParam == null || idParam.isEmpty()) {
+            responseMap.put("estado", "error");
+            responseMap.put("msg", "Debe enviar el parámetro 'idSolicitud'");
+            return ResponseEntity.badRequest().body(responseMap);
+        }
+
         try {
-            int id = Integer.parseInt(idStr);
+            int id = Integer.parseInt(idParam);
 
-            if (solicitudesRepository.existsById(id)) {
-                Optional<Solicitudes> opt = solicitudesRepository.findById(id);
+            if (id > 0) {
+                if (solicitudesRepository.existsById(id)) {
+                    Optional<Solicitudes> opt = solicitudesRepository.findById(id);
 
-                if ("denegada".equals(opt.get().getSolicitud_estado())){
-
-                    solicitudesRepository.deleteById(id);
-                    responseMap.put("id solicitada borrada", id);
-                    return ResponseEntity.ok(responseMap);
-                } else{
-
-                responseMap.put("Solicitud ", "Debe ser una solicitud denegada");
-                return ResponseEntity.badRequest().body(responseMap);
+                    if ("denegada".equals(opt.get().getSolicitud_estado())) {
+                        solicitudesRepository.deleteById(id);
+                        responseMap.put("id solicitud borrada", id);
+                        return ResponseEntity.ok(responseMap);
+                    } else {
+                        responseMap.put("estado", "error");
+                        responseMap.put("msg", "La solicitud debe estar denegada para poder ser borrada");
+                        return ResponseEntity.badRequest().body(responseMap);
+                    }
+                } else {
+                    responseMap.put("estado", "error");
+                    responseMap.put("msg", "No se encontró la solicitud con ID: " + id);
+                    return ResponseEntity.badRequest().body(responseMap);
                 }
-
             } else {
                 responseMap.put("estado", "error");
-                responseMap.put("msg", "no se encontró la solicitud con id: " + id);
+                responseMap.put("msg", "Debe enviar un ID válido");
                 return ResponseEntity.badRequest().body(responseMap);
             }
         } catch (NumberFormatException ex) {
             responseMap.put("estado", "error");
-            responseMap.put("msg", "El ID debe ser un número");
+            responseMap.put("msg", "El ID de solicitud debe ser un número válido");
             return ResponseEntity.badRequest().body(responseMap);
         }
     }
